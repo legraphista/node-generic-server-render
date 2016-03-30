@@ -1,0 +1,35 @@
+{
+  "name": "node-generic-server-render",
+  "version": "0.0.1",
+  "description": "Render output html at an url, from a file or form an html string.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefangab95/node-generic-server-render.git"
+  },
+  "keywords": [
+    "server",
+    "serverside",
+    "server-side",
+    "render",
+    "generic",
+    "html",
+    "url",
+    "file"
+  ],
+  "author": "Stefan-Gabriel Muscalu <stefan.gabriel.muscalu@gmail.com> (http://my.corneroftheinternet.rocks/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stefangab95/node-generic-server-render/issues"
+  },
+  "homepage": "https://github.com/stefangab95/node-generic-server-render#readme",
+  "dependencies": {
+    "nightmare": "^2.2.0"
+  },
+  "devDependencies": {
+    "async": "^2.0.0-rc.2"
+  }
+}
