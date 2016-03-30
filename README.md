@@ -1,5 +1,5 @@
 # generic-server-render
-Render output html at an url, from a file or form an html string.
+Render output html at an url, from a file or from an html string.
 
 ## Why?
  *Easy to use server-side rendering to aid crawlers better "see" your site*
