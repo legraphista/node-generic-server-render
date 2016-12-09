@@ -41,7 +41,7 @@ async.waterfall([
 
         render({ file : "test.html", cache: cache }, function (err, html) {
             if (err) return console.error(err);
-            console.timeEnd("Cold URL render");
+            console.timeEnd("Cold file render");
 
             console.log(html.replace(/\n/g, "").substr(0, 79) + "…");
             setTimeout(function () {
@@ -55,7 +55,7 @@ async.waterfall([
 
         render({ file : "test.html", cache: cache }, function (err, html) {
             if (err) return console.error(err);
-            console.timeEnd("Cached URL render");
+            console.timeEnd("Cached file render");
 
             console.log(html.replace(/\n/g, "").substr(0, 79) + "…");
             setTimeout(function () {
@@ -91,6 +91,17 @@ async.waterfall([
             }, 1000);
         });
     },
+    function(cb) {
+        "use strict";
+
+        render({html: '<html><head></head><body><script>document.write(\'test\');</script></body></html>'}, function(err, html) {
+           if(html==='<html><head></head><body><script>document.write(\'test\');</script>test</body></html>'){
+               console.log('Injected HTML is rendered properly');
+           } else{
+               console.error('Injected HTML does not render JS');
+           }
+        });
+    }
 ], function () {
     "use strict";
     console.log("Done!");
