@@ -27,7 +27,8 @@
 
 /** @type {Nightmare} */
 var Nightmare = require("nightmare");
-
+var fs = require('fs');
+var os = require('os');
 var path = require("path");
 
 /**
@@ -55,6 +56,10 @@ Nightmare.action('inject', function (html, done) {
         return document.documentElement.innerHTML = html;
     }, done, html)
 });
+
+var getTempFilePath = function() {
+    return path.join((os.tmpdir || os.tmpDir)(), Math.random().toString().replace('.', '') + '.html');
+};
 
 /**
  * Rendered HTML
@@ -89,36 +94,52 @@ var serverRender = function serverRender (options, callback) {
 
         if (options.url) {
             nightmare = nightmare.goto(options.url);
-        } else if (options.file) {
+            return _doRender();
+        }
+        if (options.file) {
             nightmare = nightmare.goto("file://" + path.resolve(options.file));
-        } else if (options.html) {
-            nightmare = nightmare
-                .goto("about:blank")
-                .inject(options.html);
-        } else {
-            nightmare.end();
-            return callback(module.exports.Errors.noInput);
+            return _doRender();
         }
 
-        nightmare
+        if (options.html) {
+            var tempPath = getTempFilePath();
+            return fs.writeFile(tempPath, options.html, function(err) {
+                if(err){
+                  return callback(err);
+                }
+
+                nightmare = nightmare.goto("file://" + tempPath);
+                setTimeout(function(){
+                    fs.unlink(tempPath, function(){});
+                }, 1000);
+                return _doRender();
+            });
+        }
+
+        nightmare.end();
+        return callback(module.exports.Errors.noInput);
+
+        function _doRender() {
+          nightmare
             .wait("html")
             .grabHtml()
             .then(
-                function (html) {
-                    if (options.cache) options.cache.set(options.url || options.file || options.html, html, new Function);
+              function(html) {
+                if (options.cache) options.cache.set(options.url || options.file || options.html, html, new Function);
 
-                    return callback(null, html);
-                },
-                function (err) {
-                    if (!(err instanceof Error)) err = new Error(err);
-                    return callback(err);
-                }
+                return callback(null, html);
+              },
+              function(err) {
+                if (!(err instanceof Error)) err = new Error(err);
+                return callback(err);
+              }
             );
-        nightmare.end();
+          nightmare.end();
+        }
     }
 };
 
 module.exports = serverRender;
 
 module.exports.Errors = {};
-module.exports.Errors.noInput = new Error("You havent provided URL, file or HTML");
+module.exports.Errors.noInput = new Error("You haven't provided URL, file or HTML");
