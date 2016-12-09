@@ -125,7 +125,11 @@ var serverRender = function serverRender (options, callback) {
             .grabHtml()
             .then(
               function(html) {
-                if (options.cache) options.cache.set(options.url || options.file || options.html, html, new Function);
+                if (options.cache) {
+                  return options.cache.set(options.url || options.file || options.html, html, function(err){
+                    return callback(err, html);
+                  });
+                }
 
                 return callback(null, html);
               },
