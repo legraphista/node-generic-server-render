@@ -67,6 +67,9 @@ var getTempFilePath = function() {
  * @param {Cache} [options.cache=null]
  * @param {Number} [options.width=1280]
  * @param {Number} [options.height=720]
+ * @param {String|Number|function} [options.wait=html]
+ * @param {function} [options.jsBefore=null]
+ * @param {function} [options.jsAfter=null]
  * @param {renderCallback} callback
  */
 var serverRender = function serverRender (options, callback) {
@@ -91,6 +94,10 @@ var serverRender = function serverRender (options, callback) {
             width: options.width || 1280,
             height: options.height || 720
         });
+
+        if(options.jsBefore){
+          nightmare.evaluate(options.jsBefore)
+        }
 
         var tempPath = null;
 
@@ -120,7 +127,8 @@ var serverRender = function serverRender (options, callback) {
 
         function _doRender() {
           nightmare
-            .wait("html")
+            .wait(options.wait || "html")
+            .evaluate(options.jsAfter || function(){})
             .grabHtml()
             .then(
               function(html) {
