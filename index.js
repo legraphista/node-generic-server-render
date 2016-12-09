@@ -92,6 +92,8 @@ var serverRender = function serverRender (options, callback) {
             height: options.height || 720
         });
 
+        var tempPath = null;
+
         if (options.url) {
             nightmare = nightmare.goto(options.url);
             return _doRender();
@@ -102,16 +104,13 @@ var serverRender = function serverRender (options, callback) {
         }
 
         if (options.html) {
-            var tempPath = getTempFilePath();
+            tempPath = getTempFilePath();
             return fs.writeFile(tempPath, options.html, function(err) {
                 if(err){
                   return callback(err);
                 }
 
                 nightmare = nightmare.goto("file://" + tempPath);
-                setTimeout(function(){
-                    fs.unlink(tempPath, function(){});
-                }, 1000);
                 return _doRender();
             });
         }
@@ -131,10 +130,17 @@ var serverRender = function serverRender (options, callback) {
                   });
                 }
 
+                if(tempPath){
+                  fs.unlink(tempPath, function(){});
+                }
+
                 return callback(null, html);
               },
               function(err) {
-                if (!(err instanceof Error)) err = new Error(err);
+                if(tempPath){
+                  fs.unlink(tempPath, function(){});
+                }
+
                 return callback(err);
               }
             );
