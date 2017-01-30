@@ -38,10 +38,16 @@ var path = require("path");
 /**
  * @desc defines grabHtml
  */
-Nightmare.action('grabHtml', function (done) {
-    this.evaluate_now(function () {
-        return "<html>" + document.documentElement.innerHTML + "</html>";
-    }, done)
+Nightmare.action('grabHtml', function (querySelector, done) {
+    this.evaluate_now(function (querySelector) {
+        const docs = document.querySelectorAll(querySelector);
+        const strings = new Array(docs.length);
+        for(var i = 0; i < docs.length; i++){
+          strings[i] = docs[i].outerHTML;
+        }
+        return strings;
+        // return "<html>" + document.documentElement.innerHTML + "</html>";
+    }, done, querySelector);
 });
 
 /**
@@ -65,6 +71,7 @@ var getTempFilePath = function() {
  * Rendered HTML
  * @param {URL|File|HTML} options
  * @param {Cache} [options.cache=null]
+ * @param {String} [options.querySelector=null]
  * @param {Number} [options.width=1280]
  * @param {Number} [options.height=720]
  * @param {String|Number|function} [options.wait=html]
@@ -126,7 +133,7 @@ var serverRender = function serverRender (options, callback) {
             .wait(options.wait || "html")
             .evaluate(options.jsAfter || function(){})
             .wait(options.jsAfterWait || "html")
-            .grabHtml()
+            .grabHtml(options.querySelector || "html")
             .then(
               function(html) {
                 if (options.cache) {

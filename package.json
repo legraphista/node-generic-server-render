@@ -1,6 +1,6 @@
 {
   "name": "generic-server-render",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Render output html at an url, from a file or from an html string.",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/stefangab95/node-generic-server-render#readme",
   "dependencies": {
-    "nightmare": "^2.8.1"
+    "nightmare": "^2.9.1"
   },
   "devDependencies": {
     "async": "^2.0.0-rc.2"

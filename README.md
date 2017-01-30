@@ -6,6 +6,11 @@ Render output html at an url, from a file or from an html string.
 
 _example:  Search engine optimization_
 
+## Troubleshooting
+```
+    Q: Rendering hangs and the callback is never called with an error or the result
+    A: Are you running in a headless environment? If so [here's the solution](https://github.com/segmentio/nightmare/issues/224)
+```
 ___
 ## Install
  `npm i --save generic-server-render`
@@ -35,6 +40,11 @@ ___
     - height {Number} : height of the viewport
 
     - cache {Cache} : an object of type/class Cache
+    - querySelector {String} : query to the the element(s) desired (default is 'html')
+
+    [Callback]
+    - Error / null
+    - Array.<String>
 ___
 ## Caching
 
