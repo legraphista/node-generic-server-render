@@ -7,8 +7,9 @@ Render output html at an url, from a file or from an html string.
 _example:  Search engine optimization_
 
 ## Troubleshooting
-    - Rendering hangs and the callback is never called with an error or the result
-        - Are you running in a headless environment? If so [here's the solution](https://github.com/segmentio/nightmare/issues/224)
+
+Rendering hangs and the callback is never called with an error or the result? Are you running in a headless environment? If so [here's the solution](https://github.com/segmentio/nightmare/issues/224)
+
 ___
 ## Install
  `npm i --save generic-server-render`
