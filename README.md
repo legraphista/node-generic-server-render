@@ -10,6 +10,8 @@ _example:  Search engine optimization_
 
 Rendering hangs and the callback is never called with an error or the result? Are you running in a headless environment? If so [here's the solution](https://github.com/segmentio/nightmare/issues/224)
 
+For other issues, you can add `DEBUG=nightmare*,electron:*` as an environment variable for your application and submit the log [here](https://github.com/legraphista/node-generic-server-render/issues/new).
+
 ___
 ## Install
  `npm i --save generic-server-render`
