@@ -77,6 +77,7 @@ var getTempFilePath = function() {
  * @param {String|Number|function} [options.wait=html]
  * @param {function} [options.jsAfter=null]
  * @param {function} [options.jsAfterWait=html]
+ * @param {String=} [options.agent]
  * @param {renderCallback} callback
  */
 var serverRender = function serverRender (options, callback) {
@@ -123,6 +124,10 @@ var serverRender = function serverRender (options, callback) {
                 nightmare = nightmare.goto("file://" + tempPath);
                 return _doRender();
             });
+        }
+
+        if(options.agent){
+          nightmare.useragent(options.agent);
         }
 
         nightmare.end();
