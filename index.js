@@ -103,6 +103,10 @@ var serverRender = function serverRender (options, callback) {
             height: options.height || 720
         });
 
+        if(options.agent){
+          nightmare.useragent(options.agent);
+        }
+
         var tempPath = null;
 
         if (options.url) {
@@ -124,10 +128,6 @@ var serverRender = function serverRender (options, callback) {
                 nightmare = nightmare.goto("file://" + tempPath);
                 return _doRender();
             });
-        }
-
-        if(options.agent){
-          nightmare.useragent(options.agent);
         }
 
         nightmare.end();
