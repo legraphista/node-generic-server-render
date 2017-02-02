@@ -78,6 +78,7 @@ var getTempFilePath = function() {
  * @param {function} [options.jsAfter=null]
  * @param {function} [options.jsAfterWait=html]
  * @param {String=} [options.agent]
+ * @param {Object=} [options.nightmare]
  * @param {renderCallback} callback
  */
 var serverRender = function serverRender (options, callback) {
@@ -97,11 +98,11 @@ var serverRender = function serverRender (options, callback) {
 
 
     function coldRender () {
-        var nightmare = Nightmare({
+        var nightmare = Nightmare(Object.assign({
             show: false,
             width: options.width || 1280,
             height: options.height || 720
-        });
+        }, options.nightmare || {}));
 
         if(options.agent){
           nightmare.useragent(options.agent);
