@@ -42,10 +42,15 @@ ___
 
     - cache {Cache} : an object of type/class Cache
     - querySelector {String} : query to the the element(s) desired (default is 'html')
+    - nightmare {Object} : extra nightmare options, see [nightmare documentation](https://github.com/segmentio/nightmare)
+    - filter {Object} : filter requests, see [nightmare-load-filter documentation](https://github.com/rosshinkley/nightmare-load-filter)
+        - options : {Object}
+            - urls : String[]
+        - fn : {function}
 
     [Callback]
     - Error / null
-    - Array.<String>
+    - String[]
 ___
 ## Caching
 

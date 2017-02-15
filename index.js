@@ -27,6 +27,7 @@
 
 /** @type {Nightmare} */
 var Nightmare = require("nightmare");
+require('nightmare-load-filter')(Nightmare);
 var fs = require('fs');
 var os = require('os');
 var path = require("path");
@@ -79,6 +80,7 @@ var getTempFilePath = function() {
  * @param {function} [options.jsAfterWait=html]
  * @param {String=} [options.agent]
  * @param {Object=} [options.nightmare]
+ * @param {{options: {urls: String[]}, fn: function(Object, function}=} [options.filter] see https://github.com/rosshinkley/nightmare-load-filter
  * @param {renderCallback} callback
  */
 var serverRender = function serverRender (options, callback) {
@@ -109,6 +111,10 @@ var serverRender = function serverRender (options, callback) {
         }
 
         var tempPath = null;
+
+        if(options.filter){
+          nightmare.filter(options.filter.options, options.filter.fn)
+        }
 
         if (options.url) {
             nightmare = nightmare.goto(options.url);
