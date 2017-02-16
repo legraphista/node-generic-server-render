@@ -1,6 +1,6 @@
 {
   "name": "generic-server-render",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Render output html at an url",
   "main": "index.js",
   "scripts": {
