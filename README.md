@@ -1,5 +1,5 @@
 # generic-server-render
-Render output html at an url, from a file or from an html string.
+Render output html at an url.
 
 ## Why?
  *Easy to use server-side rendering to aid crawlers better "see" your site*
@@ -19,67 +19,87 @@ ___
 ## Up to speed:
 
 ```javascript
-var render = require("generic-server-render");
+const Renderer = require('generic-server-render');
 
-render({url: "https://github.com"}, console.log);
+// Full costumization
+const renderer = new Renderer({
+  poolSize: 2,
+  querySelector: 'div',
+  width: 1000,
+  height: 500,
+  agent: 'My Awesome Renderer',
+  nightmare: {
+    webPreferences: {
+      images: false
+    },
+    show: true,
+    openDevTools: {
+      mode: 'detach'
+    }
+  },
+  filter: {
+    options: {
+      urls: ['*']
+    },
+    fn: function(details, cb) {
+      //cancel a specific file
 
-render({file: "./path/to/my/file.html"}, console.log);
+      const type = details.resourceType;
+      const url = details.url;
+      if (url.indexOf('chrome-devtools') === 0) return cb({ cancel: false });
 
-render({html : "<html><body>Hello world</body></html>"}, console.log)
+      switch (type) {
+        case "mainFrame" :
+          return cb({ cancel: false });
+        case "stylesheet":
+          return cb({ cancel: true });
+        case "script":
+          return cb({ cancel: false });
+        case "xhr":
+          return cb({ cancel: true });
+      }
+
+      return cb({ cancel: true });
+    }
+  }
+});
+
+renderer.render(option, function(err, html) {
+  if (err) {
+      console.error(err);
+  }
+
+  console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
+})
+
 ```
 ___
 ## Options
-
-    - url {String} : website location
-    - file {String} : file absolute / relative ocation
-    - html {String} : actual html
-    [NOTE] url, file and html are mutually exclusive
-           and will be prioritized as follows: url, file, html
+### New render instance
 
     [Optional]
-    - width {Number} : width of the viewport
-    - height {Number} : height of the viewport
+        - width {Number} : width of the viewport
+        - height {Number} : height of the viewport
+        - poolSize {Number} : number of opened browsers
+        - nightmare {Object} : extra nightmare options, see [nightmare documentation](https://github.com/segmentio/nightmare)
+        - filter {Object} : filter requests, see [nightmare-load-filter documentation](https://github.com/rosshinkley/nightmare-load-filter)
+            - options : {Object}
+                - urls : String[]
+            - fn : {function}
 
-    - cache {Cache} : an object of type/class Cache
-    - querySelector {String} : query to the the element(s) desired (default is 'html')
-    - nightmare {Object} : extra nightmare options, see [nightmare documentation](https://github.com/segmentio/nightmare)
-    - filter {Object} : filter requests, see [nightmare-load-filter documentation](https://github.com/rosshinkley/nightmare-load-filter)
-        - options : {Object}
-            - urls : String[]
-        - fn : {function}
+### Posting a render job
+
+    [Options]
+        - querySelector {String} : query to the the element(s) desired (default is 'html')
+        - url {String} : website location
+        - wait {String|Number|function} : wait for elemnt to be ready
+        - jsAfter {function} : run a function in the context of the browser
+        - jsAfterWait {String|Number|function} : wait for jsAfter for finish (if any)
 
     [Callback]
-    - Error / null
-    - String[]
-___
-## Caching
+        - Error / null
+        - String[]
 
-Caching makes so that the server will not have to render the page more than once.
-
-You can implement a Cache adapter of your own (or use the example one in `generic-server-render/cache/ExampleMemoryCache`.
-
-### Implementing your own cache adaptor
-All you need is an `Object`, `Class`, or `Function` with the following methods:
- - `get (/**String*/ key, /**function(err, html)*/ callback)` - get cached page
- - `set (/**String*/ key, /**String*/ html, /**function(err)*/ callback)` - set cached page
-
-#### Example:
-```javascript
-var ExampleMemoryCache = function ExampleMemoryCache () {
-    this._cache = {};
-};
-ExampleMemoryCache.prototype.get = function _get (key, callback) {
-    return process.nextTick(function () {
-        callback(null, this._cache[key]);
-    }.bind(this));
-};
-ExampleMemoryCache.prototype.set = function _set (key, html, callback) {
-    this._cache[key] = html;
-    process.nextTick(function () {
-        callback(null);
-    });
-};
-```
 ___
 # License
 Code is licensed under MIT
