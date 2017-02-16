@@ -1,122 +1,78 @@
-var render = require("./index");
-var ExampleMemoryCache = require("./cache/ExampleMemoryCache");
-var cache = new ExampleMemoryCache();
+process.env.DEBUG = 'nightmare*,electron*';
 
-var async = require("async");
+const Renderer = require("./index");
 
-async.waterfall([
-  function(cb) {
-    "use strict";
-
-    console.time("Cold URL render");
-
-    render({ url: "https://github.com", cache: cache }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("Cold URL render");
-
-      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
+const filter = {
+  options: {
+    urls: ['*']
   },
-  function(cb) {
-    "use strict";
+  fn: function(details, cb) {
+    //cancel a specific file
 
-    console.time("Cached URL render");
+    const type = details.resourceType;
+    const url = details.url;
+    if (url.indexOf('chrome-devtools') === 0) return cb({ cancel: false });
 
-    render({ url: "https://github.com", cache: cache }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("Cached URL render");
+    switch (type) {
+      case "mainFrame" :
+        return cb({ cancel: false });
+      case "stylesheet":
+        return cb({ cancel: true });
+      case "script":
+        return cb({ cancel: false });
+      case "xhr":
+        return cb({ cancel: true });
+    }
 
-      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
-  },
-  function(cb) {
-    "use strict";
-    console.time("Cold file render");
-
-    render({ file: "test.html", cache: cache }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("Cold file render");
-
-      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
-  },
-  function(cb) {
-    "use strict";
-    console.time("Cached file render");
-
-    render({ file: "test.html", cache: cache }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("Cached file render");
-
-      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
-  },
-  function(cb) {
-    "use strict";
-    console.time("Cold HTML render");
-
-    render({ html: "<html><body>Hello World!</body></html>", cache: cache }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("Cold HTML render");
-
-      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
-  },
-  function(cb) {
-    "use strict";
-    console.time("Cached HTML render");
-
-    render({ html: "<html><body>Hello World!</body></html>", cache: cache }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("Cached HTML render");
-
-      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
-  },
-  function(cb) {
-    "use strict";
-    console.time("QuerySelector HTML render");
-
-    render({ html: "<html><body><p>Hello World!</p></body></html>", cache: cache, querySelector: 'p' }, function(err, html) {
-      if (err) return console.error(err);
-      console.timeEnd("QuerySelector HTML render");
-
-      console.log(html[0], '=== <p>Hello World!</p>');
-      setTimeout(function() {
-        cb()
-      }, 1000);
-    });
-  },
-  function(cb) {
-    "use strict";
-
-    render({ html: '<html><head></head><body><script>document.write(\'test\');</script></body></html>' }, function(err, html) {
-      if (html === '<html><head></head><body><script>document.write(\'test\');</script>test</body></html>') {
-        console.log('Injected HTML is rendered properly');
-      } else {
-        console.error('Injected HTML does not render JS');
-      }
-    });
+    return cb({ cancel: true });
   }
-], function() {
-  "use strict";
-  console.log("Done!");
+};
+
+const renderer = new Renderer({
+  poolSize: 2,
+  querySelector: 'div',
+  width: 1000,
+  height: 500,
+  agent: 'My Awesome Renderer',
+  nightmare: {
+    webPreferences: {
+      images: false
+    },
+    show: true,
+    openDevTools: {
+      mode: 'detach'
+    }
+  },
+  filter
 });
+
+const async = require("async");
+
+const options = [
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' },
+  { url: 'https://github.com' }
+];
+
+async.each(
+  options,
+  (option, cb) =>
+    renderer.render(option, function(err, html) {
+      if (err) return cb(err);
+
+      console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
+      return cb()
+    }),
+  err => {
+    if (err) {
+      console.error(err);
+    }
+    console.log("Done!");
+    renderer.close();
+  });
