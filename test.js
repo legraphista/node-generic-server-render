@@ -30,7 +30,6 @@ const filter = {
 
 const renderer = new Renderer({
   poolSize: 2,
-  querySelector: 'div',
   width: 1000,
   height: 500,
   agent: 'My Awesome Renderer',

@@ -24,7 +24,6 @@ const Renderer = require('generic-server-render');
 // Full costumization
 const renderer = new Renderer({
   poolSize: 2,
-  querySelector: 'div',
   width: 1000,
   height: 500,
   agent: 'My Awesome Renderer',
@@ -66,7 +65,7 @@ const renderer = new Renderer({
 
 renderer.render(option, function(err, html) {
   if (err) {
-      console.error(err);
+      return console.error(err);
   }
 
   console.log(html[0].replace(/\n/g, "").substr(0, 79) + "…");
@@ -92,7 +91,7 @@ ___
     [Options]
         - querySelector {String} : query to the the element(s) desired (default is 'html')
         - url {String} : website location
-        - wait {String|Number|function} : wait for elemnt to be ready
+        - wait {String|Number|function} : wait for elemnt / time / function to be ready
         - jsAfter {function} : run a function in the context of the browser
         - jsAfterWait {String|Number|function} : wait for jsAfter for finish (if any)
 
